@@ -9,6 +9,7 @@ const InputComponent: React.FC<FormComponentType> = ({
   placeholder,
   keyboardType,
   isPassword = false,
+  customStyle= 'border-black-200'
 }) => {
   const [isHidden, setIsHidden] = React.useState(true);
 
@@ -17,7 +18,7 @@ const InputComponent: React.FC<FormComponentType> = ({
   return (
     <View>
       <Text className="text-lg text-white font-pmedium"> {title}: </Text>
-      <View className="w-full h-14 p-2 bg-black-100 border-2 border-black-200 flex-row items-center justify-between rounded-lg">
+      <View className={`w-full h-14 p-2 bg-black-100 border-2 ${customStyle} flex-row items-center justify-between rounded-lg`}>
         <TextInput
           className="h-full text-white w-[80%]"
           placeholder={placeholder}

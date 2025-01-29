@@ -2,33 +2,16 @@ import CustomButton from "@/components/common/CustomButton";
 import LogoComponent from "@/components/common/LogoComponent";
 import { images } from "@/constants";
 import { Colors } from "@/constants/Colors";
+import { ResponseStatus } from "@/enum/ResponseStatus";
+import useFirebaseConnection from "@/hooks/useFirebaseConnection";
 import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Image, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import {getDocs, collection} from 'firebase/firestore'
-import { db } from "@/libs/firebaseConfig";
 
 const Onboading = () => {
-
-  const [message, setMessage] = useState("Connecting Firebase ...")
-
-  useEffect(()=> {
-    const testConnection = async () => {
-      try{
-        const querySelector = await getDocs(collection(db, 'user'))
-        if(querySelector){
-          setMessage("Connected to Firebase")
-        }else{
-          setMessage("Failed to connect to Firebase")
-        }
-      }catch(e){
-        setMessage(`Failed to connect to Firebase ${e}`)
-      }
-    }
-    testConnection()
-  },[])
+  const { message, isConnected } = useFirebaseConnection();
 
   return (
     <SafeAreaView className="bg-primary h-full">
@@ -57,13 +40,23 @@ const Onboading = () => {
           </Text>
           <CustomButton
             title="Continue with Email"
-            onPress={() => router.push('/sign-in')}
+            onPress={() => router.push("/sign-in")}
             customStyle="w-full"
+            isLoading={!isConnected}
           />
-          <Text className="text-white">{message}</Text>
+          <Text
+            className={`${
+              isConnected == ResponseStatus.SUCCESS
+                ? "text-green-400"
+                : isConnected == ResponseStatus.ERROR
+                ? "text-red-500"
+                : "text-white"
+            }`}
+          >
+            {message}
+          </Text>
         </View>
       </ScrollView>
-      <StatusBar backgroundColor={Colors.primary} style="light" />
     </SafeAreaView>
   );
 };
