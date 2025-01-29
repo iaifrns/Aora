@@ -1,20 +1,40 @@
 import CustomButton from "@/components/common/CustomButton";
+import LogoComponent from "@/components/common/LogoComponent";
 import { images } from "@/constants";
+import { Colors } from "@/constants/Colors";
+import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Image, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import {getDocs, collection} from 'firebase/firestore'
+import { db } from "@/libs/firebaseConfig";
 
 const Onboading = () => {
+
+  const [message, setMessage] = useState("Connecting Firebase ...")
+
+  useEffect(()=> {
+    const testConnection = async () => {
+      try{
+        const querySelector = await getDocs(collection(db, 'user'))
+        if(querySelector){
+          setMessage("Connected to Firebase")
+        }else{
+          setMessage("Failed to connect to Firebase")
+        }
+      }catch(e){
+        setMessage(`Failed to connect to Firebase ${e}`)
+      }
+    }
+    testConnection()
+  },[])
+
   return (
     <SafeAreaView className="bg-primary h-full">
       <ScrollView contentContainerStyle={{ height: "100%" }}>
         <View className="w-full h-full items-center px-4 gap-6">
-          <Image
-            source={images.logo}
-            className="w-[130px] h-[84px]"
-            resizeMode="contain"
-          />
+          <LogoComponent />
           <Image
             source={images.cards}
             className="w-[300px] h-[250px]"
@@ -31,11 +51,19 @@ const Onboading = () => {
               resizeMode="contain"
             />
           </View>
-            <Text className="text-sm text-gray-100 text-center">Where creativivty meets innovation: embark on a journey of limitless exploration with Aora</Text>
-            <CustomButton title="Continue with Email" onPress={()=>{}} customStyle="w-full" />
+          <Text className="text-sm text-gray-100 text-center">
+            Where creativivty meets innovation: embark on a journey of limitless
+            exploration with Aora
+          </Text>
+          <CustomButton
+            title="Continue with Email"
+            onPress={() => router.push('/sign-in')}
+            customStyle="w-full"
+          />
+          <Text className="text-white">{message}</Text>
         </View>
-        <StatusBar backgroundColor="#161622" style="light"  />
       </ScrollView>
+      <StatusBar backgroundColor={Colors.primary} style="light" />
     </SafeAreaView>
   );
 };

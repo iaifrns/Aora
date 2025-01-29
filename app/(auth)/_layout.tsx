@@ -1,12 +1,13 @@
+import { Stack } from 'expo-router'
 import React, { Component } from 'react'
-import { Text, View } from 'react-native'
 
 export class AuthLayout extends Component {
   render() {
     return (
-      <View>
-        <Text> textInComponent </Text>
-      </View>
+      <Stack>
+        <Stack.Screen name='sign-in' options={{headerShown: false}} />
+        <Stack.Screen name='sign-up' options={{headerShown: false}} />
+      </Stack>
     )
   }
 }

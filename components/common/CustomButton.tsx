@@ -10,7 +10,7 @@ const CustomButton: React.FC<ButtonType> = ({
 }) => {
   return (
     <TouchableOpacity
-      className={`bg-secondary rounded-lg p-2 ${customStyle} ${
+      className={`bg-secondary rounded-lg p-2 h-14 justify-center ${customStyle} ${
         isLoading && "opacity-50"
       }`}
       //disabled={isLoading}
