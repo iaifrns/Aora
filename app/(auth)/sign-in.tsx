@@ -2,9 +2,9 @@ import CustomButton from "@/components/common/CustomButton";
 import InputComponent from "@/components/common/InputComponent";
 import LogoComponent from "@/components/common/LogoComponent";
 import { ResponseStatus } from "@/enum/ResponseStatus";
-import { SignInUser } from "@/services/signIn";
+import { signInUser } from "@/services/signIn";
 import { FormErrorType } from "@/types/formComponent";
-import { Link } from "expo-router";
+import { Link, router } from "expo-router";
 import React, { useState } from "react";
 import { ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -44,7 +44,7 @@ const SignIn = () => {
           isEmailOk: false,
           errorMessage: { email: "Email is not valid", password: null },
         };
-      case values.password.length < 4:
+      case values.password.length < 6:
         return {
           ...formError,
           isPasswordOk: false,
@@ -76,11 +76,14 @@ const SignIn = () => {
     setFormError(error);
     if (error.isEmailOk && error.isPasswordOk) {
       setResponse({ status: ResponseStatus.LOADING, message: "Loading..." });
-      const { status, message, user } = await SignInUser(
+      const { status, message, user } = await signInUser(
         values.email,
         values.password
       );
       setResponse({ status, message });
+      if (status === ResponseStatus.SUCCESS){
+        router.replace("/home");
+      }
     }
   };
 
@@ -138,7 +141,7 @@ const SignIn = () => {
             customStyle="mt-5"
             isLoading={response.status === ResponseStatus.LOADING}
           />
-          <Text
+          {response.status &&(<Text
             className={`text-lg text-center ${
               response.status == ResponseStatus.SUCCESS
                 ? "text-green-400"
@@ -148,7 +151,7 @@ const SignIn = () => {
             }`}
           >
             {response.message}
-          </Text>
+          </Text>)}
           <View className="w-full items-center flex-row justify-center mt-3">
             <Text className="text-lg text-gray-100">Don't have account? </Text>
             <Link
