@@ -1,3 +1,4 @@
+import { dbInfo } from "@/constants";
 import { ResponseStatus } from "@/enum/ResponseStatus";
 import { db } from "@/libs/firebaseConfig";
 import { ResponseType } from "@/types/response";
@@ -7,7 +8,7 @@ import { collection, getDocs } from "firebase/firestore";
 const getVideos = async (): Promise<ResponseType> => {
   try {
     const videos: VideoType[] = [];
-    const response = await getDocs(collection(db, "video"));
+    const response = await getDocs(collection(db, dbInfo.videoCollection));
     if (response) {
       response.forEach((doc) => {
         videos.push({

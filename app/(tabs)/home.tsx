@@ -2,19 +2,24 @@ import EmptyListComponent from "@/components/common/EmptyListComponent";
 import LoaderScreen from "@/components/common/LoaderScreen";
 import SearchBarComponent from "@/components/common/SearchBarComponent";
 import Trending from "@/components/common/Trending";
+import VideoComponent from "@/components/common/VideoComponent";
 import { images } from "@/constants";
 import { ResponseStatus } from "@/enum/ResponseStatus";
 import useFetchData from "@/hooks/useFetchData";
+import getAllVideoPosters from "@/services/getAllVideoPosters";
 import { getVideos } from "@/services/getVideos";
+import { UserType } from "@/types/user";
 import { VideoType } from "@/types/video";
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { FlatList, Image, RefreshControl, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const HomeScreen = () => {
   const { response, refresher } = useFetchData(getVideos);
   const [refreshing, setRefreshing] = React.useState(false);
-  /* const [response, setResponse] = useState<ResponseType>() */
+  const [loading, setLoading] = useState(false);
+  const [iscallComplite, setIscallComplite] = useState(false);
+  const [users, setUsers] = useState<UserType[]>();
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
@@ -23,16 +28,16 @@ const HomeScreen = () => {
     setRefreshing(false);
   }, []);
 
-  /* useEffect(()=> {
-    const addData = async () => {
-      setResponse({...response, status: ResponseStatus.LOADING, message: ""})
-      const res = await addDummyVideoData()
-      setResponse(res)
-    }
-    addData()
-  },[]) */
+  if (response?.status == ResponseStatus.SUCCESS && !iscallComplite) {
+    setLoading(true);
+    getAllVideoPosters(response.data, setLoading).then((users) => {
+      setUsers(users);
+      console.log(users)
+      setIscallComplite(true);
+    });
+  }
 
-  if (response?.status == ResponseStatus.LOADING) {
+  if (response?.status == ResponseStatus.LOADING || loading) {
     return <LoaderScreen />;
   }
 
@@ -41,7 +46,7 @@ const HomeScreen = () => {
       <FlatList
         data={response?.data as VideoType[]}
         renderItem={(item) => (
-          <Text className="text-white text-3xl">{item.item.title}</Text>
+          <VideoComponent videoData={item.item} user={users?.filter(user=> user.id == item.item.uid)[0]} />
         )}
         keyExtractor={(item) => item?.id ?? ""}
         ListHeaderComponent={() => (
