@@ -1,8 +1,10 @@
 import { icons } from "@/constants";
 import { UserType } from "@/types/user";
 import { VideoType } from "@/types/video";
-import React, { Component, useState } from "react";
-import { Image, Text, TouchableOpacity, View } from "react-native";
+import { useEvent } from "expo";
+import { useVideoPlayer, VideoView } from "expo-video";
+import React from "react";
+import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 interface VideoComponentType {
   videoData: VideoType;
@@ -11,9 +13,18 @@ interface VideoComponentType {
 
 const VideoComponent: React.FC<VideoComponentType> = ({ videoData, user }) => {
   const { title, id, thumbnail, prompt, video, uid } = videoData;
-  const [isPlaying, setIsPlaying] = useState(false);
+  const v =
+    "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
+  const player = useVideoPlayer(v, (player) => {
+    (player.loop = true), player.pause();
+  });
+
+  const { isPlaying } = useEvent(player, "playingChange", {
+    isPlaying: player.playing,
+  });
+
   return (
-    <View className="px-4 flex-col gap-4" >
+    <View className="px-4 flex-col gap-4">
       <View className="py-4 w-full">
         <View className="flex-row justify-between items-start">
           <View className="flex-row gap-2">
@@ -32,9 +43,15 @@ const VideoComponent: React.FC<VideoComponentType> = ({ videoData, user }) => {
           <Image source={icons.menu} className="w-5 h-5" resizeMode="contain" />
         </View>
         {isPlaying ? (
-          <Text className="text-white">video playing</Text>
+          <VideoView player={player} style={styles.videoStyle} nativeControls allowsFullscreen />
         ) : (
-          <TouchableOpacity activeOpacity={0.7} onPress={() => setIsPlaying(true)} className="w-full h-60 justify-center items-center">
+          <TouchableOpacity
+            activeOpacity={0.7}
+            onPress={() => {
+              isPlaying ? player.pause() : player.play( )
+            }}
+            className="w-full h-60 justify-center items-center"
+          >
             <Image
               source={{ uri: thumbnail }}
               className="w-full h-full rounded-xl mt-3"
@@ -47,5 +64,15 @@ const VideoComponent: React.FC<VideoComponentType> = ({ videoData, user }) => {
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  videoStyle: {
+    width: '100%',
+    height: 240,
+    borderRadius: 12,
+    marginTop: 12,
+    backgroundColor: 'rgba(255,255,255,0.1)'
+  }
+})
 
 export default VideoComponent;

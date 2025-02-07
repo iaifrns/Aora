@@ -14,6 +14,8 @@ import {
 } from "react-native";
 import * as Animatable from "react-native-animatable";
 import WebView from "react-native-webview";
+import {useVideoPlayer, VideoView} from 'expo-video'
+import { useEvent } from "expo";
 
 interface PostType {
   posts: VideoType[];
@@ -80,6 +82,51 @@ const TrendingItem: React.FC<TrendingItemType> = ({ activeItem, item }) => {
   );
 };
 
+const TrendingItem1: React.FC<TrendingItemType> = ({ activeItem, item }) => {
+  const v = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
+  const player = useVideoPlayer(v, player => {
+    player.loop = true,
+    player.pause()
+  })
+
+  const {isPlaying} = useEvent(player, 'playingChange', {isPlaying: player.playing})
+  const {status, error} = useEvent(player, 'statusChange', {status: player.status})
+
+  return (
+    <Animatable.View
+      className="mr-5"
+      animation={activeItem === item.id ? zoomIn : zoomOut}
+      duration={500}
+    >
+      {isPlaying ? (
+        <VideoView player={player} allowsFullscreen style={styles.webview} />
+      ) : (
+        <TouchableOpacity
+          className="relative justify-center items-center"
+          activeOpacity={0.7}
+          onPress={() => {
+            isPlaying ? player.pause() : player.play()
+
+            console.log("button clicked", isPlaying, item.video);
+            console.log(status, error)
+          }}
+        >
+          <ImageBackground
+            source={{ uri: item.thumbnail }}
+            className="w-52 h-72 rounded-[35px] my-5 overflow-hidden shadow-lg shadow-black/40"
+            resizeMode="cover"
+          />
+          <Image
+            source={icons.play}
+            className="w-12 h-12 absolute"
+            resizeMode="contain"
+          />
+        </TouchableOpacity>
+      )}
+    </Animatable.View>
+  );
+};
+
 const Trending: React.FC<PostType> = ({ posts }) => {
   const [activeItem, setActiveItem] = useState<string>(posts[1].id!);
 
@@ -97,7 +144,7 @@ const Trending: React.FC<PostType> = ({ posts }) => {
     <FlatList
       data={posts}
       renderItem={(item) => (
-        <TrendingItem item={item.item} activeItem={activeItem} />
+        <TrendingItem1 item={item.item} activeItem={activeItem} />
       )}
       onViewableItemsChanged={viewableItemsChanged}
       viewabilityConfig={{ itemVisiblePercentThreshold: 70 }}
@@ -112,6 +159,7 @@ const styles = StyleSheet.create({
     width: 208,
     height: 288,
     borderRadius: 35,
+    backgroundColor: 'rgba(255,255,255,0.1)'
   },
 });
 
