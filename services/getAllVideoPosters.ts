@@ -1,24 +1,43 @@
-import useFetchData from "@/hooks/useFetchData";
+import { ResponseStatus } from "@/enum/ResponseStatus";
 import { UserType } from "@/types/user";
 import { VideoType } from "@/types/video";
 import getUser from "./getUser";
-import { ResponseStatus } from "@/enum/ResponseStatus";
+import { ResponseType } from "@/types/response";
 
 const getAllVideoPosters = async (
-  videos: VideoType[],
-  setLoading: React.Dispatch<React.SetStateAction<boolean>>
-): Promise<UserType[]> => {
-  const users: UserType[] = [];
-  await Promise.all(
+  videos: VideoType[]
+): Promise<ResponseType> => {
+  const usersGroup: Record<string, UserType> = {};
+  console.log(usersGroup)
+  const res = await Promise.all(
     videos.map(async (video) => {
-      const res = await getUser(video.id!);
+      console.log(video.uid)
+      const res = await getUser(video.uid!);
       if (res.status == ResponseStatus.SUCCESS) {
-        users.push(res.data);
+        const user = res.data as UserType
+        if(!usersGroup[user.id]){
+          usersGroup[user.id] = user
+        }
       }
+      return res;
     })
   );
-  setLoading(false);
-  return users;
+  let response: ResponseType;
+  if (res.every((r) => r.status == ResponseStatus.SUCCESS)) {
+    const users = Object.values(usersGroup)
+    response = {
+      status: ResponseStatus.SUCCESS,
+      message: "success ...",
+      videos: videos,
+      users: [...users],
+    };
+  } else {
+    response = {
+      status: ResponseStatus.ERROR,
+      message: "something went roung",
+    };
+  }
+  return response;
 };
 
 export default getAllVideoPosters;

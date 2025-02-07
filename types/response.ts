@@ -8,4 +8,5 @@ export interface ResponseType {
   user?: UserType | null;
   videos?: VideoType[] | null;
   data ?: any;
+  users?: UserType[] | null
 }

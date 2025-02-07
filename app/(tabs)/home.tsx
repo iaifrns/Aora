@@ -5,21 +5,16 @@ import Trending from "@/components/common/Trending";
 import VideoComponent from "@/components/common/VideoComponent";
 import { images } from "@/constants";
 import { ResponseStatus } from "@/enum/ResponseStatus";
-import useFetchData from "@/hooks/useFetchData";
-import getAllVideoPosters from "@/services/getAllVideoPosters";
-import { getVideos } from "@/services/getVideos";
-import { UserType } from "@/types/user";
+import useGetVideosAndUsers from "@/hooks/useGetVideosAndUsers";
+import getRandomVideos from "@/services/getRandomVideos";
 import { VideoType } from "@/types/video";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback } from "react";
 import { FlatList, Image, RefreshControl, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const HomeScreen = () => {
-  const { response, refresher } = useFetchData(getVideos);
+  const {res : response, refresher} = useGetVideosAndUsers()
   const [refreshing, setRefreshing] = React.useState(false);
-  const [loading, setLoading] = useState(false);
-  const [iscallComplite, setIscallComplite] = useState(false);
-  const [users, setUsers] = useState<UserType[]>();
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
@@ -27,26 +22,20 @@ const HomeScreen = () => {
     console.log("fetching data");
     setRefreshing(false);
   }, []);
+  
 
-  if (response?.status == ResponseStatus.SUCCESS && !iscallComplite) {
-    setLoading(true);
-    getAllVideoPosters(response.data, setLoading).then((users) => {
-      setUsers(users);
-      console.log(users)
-      setIscallComplite(true);
-    });
-  }
-
-  if (response?.status == ResponseStatus.LOADING || loading) {
+  if (response?.status == ResponseStatus.LOADING) {
     return <LoaderScreen />;
   }
+
+  console.log(response?.users)
 
   return (
     <SafeAreaView className="w-full bg-primary h-full">
       <FlatList
-        data={response?.data as VideoType[]}
+        data={response?.videos as VideoType[]}
         renderItem={(item) => (
-          <VideoComponent videoData={item.item} user={users?.filter(user=> user.id == item.item.uid)[0]} />
+          <VideoComponent videoData={item.item} user={response?.users?.filter(user=> user.id == item.item.uid)[0]} />
         )}
         keyExtractor={(item) => item?.id ?? ""}
         ListHeaderComponent={() => (
@@ -74,7 +63,7 @@ const HomeScreen = () => {
               <Text className="text-gray-100 text-lg font-pregular">
                 Trending Video
               </Text>
-              <Trending post={[{ id: 1 }, { id: 2 }, { id: 3 }]} />
+              <Trending posts={getRandomVideos(response?.videos ?? [])} />
             </View>
           </View>
         )}

@@ -52,7 +52,7 @@ const videos: VideoType[] = [
     thumbnail: "https://i.ibb.co/C5wXXf9/Video-3.png",
     video: "https://player.vimeo.com/video/949620017?h=d60220d68d",
     prompt: "An imaginative video envisioning the future of Virtual Reality",
-    uid: "B1BBCxabGtUsW5U26NujOXnFTka3",
+    uid: "ZU1xKHGiF2eFODjeCVlB",
   },
   {
     title: "A World where Ideas Grow Big",
@@ -60,7 +60,7 @@ const videos: VideoType[] = [
     video: "https://player.vimeo.com/video/949620200?h=d60220d68d",
     prompt:
       "Make a fun video about hackers and all the cool stuff they do with computers",
-    uid: "B1BBCxabGtUsW5U26NujOXnFTka2",
+    uid: "ZU1xKHGiF2eFODjeCVlB",
   },
 ];
 
